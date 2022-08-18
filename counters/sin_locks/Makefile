@@ -1,7 +1,7 @@
 # specify all source files here
 SRCS = counter_wo_locks.c main.c
 # specify target here (name of executable)
-TARG = main.out
+TARG = counter_wo_locks
 # specify compiler, compile flags, and needed libs
 CC = gcc
 OPTS = -Wall -O -g
@@ -12,8 +12,7 @@ OBJS = $(SRCS:.c=.o)
 
 # all is not really needed, but is used to generate the target
 all: $(TARG)
-	mv $< counter_wo_locks
-
+	
 # this generates the target executable
 $(TARG): $(OBJS)
 	$(CC) -o $(TARG) $(OBJS) $(LIBS)
