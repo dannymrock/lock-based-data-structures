@@ -4,11 +4,6 @@
 #include <pthread.h>
 #include <sys/time.h>
 #include "counter_wo_locks.h"
-//#include "counter_locks.h"
-
-// #define N_THREADS 4
-
-
 
 volatile counter_t my_counter;
 int N_THREADS = 4;
