@@ -1,83 +1,68 @@
 #include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
+#include <assert.h>
+#include <string.h>
+#include <sys/time.h>
 #include "linked_list.h"
 
-#define NUM_THREADS 8
-#define USLEEP_TIME 500000
 
+int END_VALUE = 50000;
 list_t L;
-int nthreads;
-int usleeptime;
-pthread_t *tids;
-  
 
-int main() {
-  int i;  
-  List_Init(&L);
-  //struct info *infos;
-  nthreads = NUM_THREADS;
-  usleeptime = USLEEP_TIME;
-
-  tids = (pthread_t *) malloc(sizeof(pthread_t) * nthreads);
-  for (i = 0; i < nthreads; i++) {
-    //pthread_create(tids+i, NULL, share_counter, (void *) &infos[i]);
+void* my_thread1(void* arg){
+  // Insersion de numeros pares
+  int num = 0;
+  for (num = 0; num < END_VALUE; num += 2){
+    List_Insert(&L, num);
   }
-  return 0;
+  return NULL;
+}
+
+void* my_thread2(void* arg){
+  // Insersion de numeros impares
+  int num;
+  for (num = 1; num < END_VALUE; num += 2){
+    List_Insert(&L, num);
+  }
+  return NULL;
 }
 
 
-
-void add_keys(void *args){
-   int *num_elements = (int *) args;
-   for(int i = 0; i < *num_elements; i++) {
-     List_Insert(&L, i);
-   }
-
-
-  /**
-
-    args_t *myargs = (args_t *) args;
-    int office_id = myargs->id;
-    unsigned int myseed = (unsigned int)myargs->seed;
-
-    printf("my id %d, my seed %d \n", office_id, myseed);
-
-    char lend_id[100]; 
-    int i, rand_id;
-
-    // local counters for successful and failed loans
-    int success_c = 0, fail_c = 0;
-    book_t *lended_book;
-        
-    for (i = 0; i < LEND_BOOKS; i++){
-        myseed++;
-        rand_id = generate_rand_id(&myseed);
-        #ifdef DEBUG
-        if (i < 5)
-            printf("office_id %d, rand_id %d \n", office_id, rand_id);
-        #endif
-        sprintf(lend_id, "%d", rand_id);
-        lended_book = lend_book(available_books, lend_id);
-        if (lended_book != NULL) {
-            success_c++;
-            delete_book(lended_book);
-        } else {
-            fail_c++;
-        }
-    }
-    pthread_mutex_lock(&lend_lock);
-    total_success_c += success_c;
-    total_fail_c += fail_c;
-    pthread_mutex_unlock(&lend_lock);
-    
-    printf("Office %d has finished its workload, successful loans %d, failed loans %d\n", office_id, success_c, fail_c);
-    */
-}
-
-
-/*
 int main() {
+
+  int rc;
+  int i;
+
+  // Inicializacion de la lista
+  List_Init(&L);
+  pthread_t thread1, thread2;
+
+  // Creacion de los hilos
+  rc = pthread_create(&thread1, NULL, my_thread1, NULL); // Hilo que inserta numeros pares
+  assert(rc == 0);
+  rc = pthread_create(&thread2, NULL, my_thread2, NULL); // Hilo que inserta numero impares
+  assert(rc == 0);
+  
+  // Espera de la terminacion de los hilos hijos
+  pthread_join(thread1, NULL);
+  pthread_join(thread2, NULL);
+
+  // El hilo principal verificara que se hayan agregado todos lo elementos
+  int cnt = 0;
+
+  for(i = 0; i < END_VALUE;i++) {
+    if(List_Lookup(&L, i) == 0) {
+      // Numero encontrado
+      cnt++;
+    }
+  }
+
+  // Resumen de los resultados
+  printf("- Cantidad esperada de valores insertados: %d\n",END_VALUE);
+  printf("- Cantidad real de valores insertados: %d\n",cnt);
+
+
+  /*
+  // Test del funcionamiento basico
   int found;
   list_t L;
   List_Init(&L);
@@ -88,6 +73,10 @@ int main() {
   printf("3 in L? %d\n",found);
   found = List_Lookup(&L, 5);
   printf("3 in L? %d\n",found);
+  */ 
   return 0;
 }
-*/
+
+
+
+
